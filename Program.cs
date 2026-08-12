@@ -1,4 +1,6 @@
-using WarehouseApi.Services;
+using Microsoft.EntityFrameworkCore;
+using Backend_project.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Add Controllers and Swagger/OpenAPI support
@@ -6,9 +8,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 2. Register your services (Uncomment and match your actual service names if needed)
-builder.Services.AddSingleton<IProductService, ProductService>();
-builder.Services.AddSingleton<ISupplierService, SupplierService>();
+// 2. Register Database Context
+builder.Services.AddDbContext<PostgresdbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
@@ -16,14 +18,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(); // This powers the /swagger dashboard page
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
-// 4. Map your API controllers to routes 
 app.MapControllers();
 
 app.Run();
